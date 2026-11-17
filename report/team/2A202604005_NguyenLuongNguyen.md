@@ -72,4 +72,3 @@
 - Hoàn thành phần việc được giao (Shape workflow).
 - Học được điểm khác biệt giữa các shapes, điểm mạnh và điểm yếu. Học được cách tạo ra shape workflow.
 - Có kiểm tra lại những phần AI đã viết và kiến thức chung.
-...
