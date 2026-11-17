@@ -2,22 +2,19 @@
 
 ## Thông tin nhóm
 
-- Tên nhóm:
-- Lớp: L3A
-- Repo nhóm: `K5-L3A-DAY08-TenNhom-FromWorkflowsToAgents` (xem [SUBMISSION.md](SUBMISSION.md))
-- URL repo, nhánh nộp, commit chốt:
+- Tên nhóm: AIDoCode
+- Lớp: L3B
+- Repo nhóm: `K5-L3B-DAY08-AIDoCode-FromWorkflowsToAgents` (xem [SUBMISSION.md](SUBMISSION.md))
+- URL repo, nhánh nộp, commit chốt: https://github.com/phuthaitran/K5-L3B-DAY8-AIDoCode-FromWorkflowsToAgents
 
 ## Thành viên
 
 | STT | Họ tên | MSSV | Email | GitHub | Vai trò |
 | --: | ------ | ---- | ----- | ------ | ------- |
-|   1 |        |      |       |        |         |
-|   2 |        |      |       |        |         |
-
-Gợi ý chia vai:
-
-- Nhóm 6 người: integration; workflow; single agent; orchestrator; ledger/policy/crash; eval/report.
-- Nhóm 4 người: workflow + integration; single; orchestrator + handoff; ledger + evaluation.
+|   1 | Trần Phú Thái | 2A202604001 | 26ai.thaitp@vinuni.edu.vn | phuthaitran | Nhóm trưởng, intergration, ledger + evaluation |
+|   2 | Nguyễn Lương Nguyên | 2A202604005 | nglngnguyen@gmail.com | nglngnguyen-gh | Shape A Workflow |
+|   3 | Cao Trung Hiếu | 2A202603993 | 26ai.hieuct@vinuni.edu.vn | HieuCaoTlu | Shape B Single Agent |
+|   4 | Giang Thái Sơn | 2A202604001 | giangson309@gmail.com | son309 | Shape C Orchestrator + Handoff |
 
 ## Bảng đóng góp
 
