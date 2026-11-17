@@ -20,7 +20,7 @@
 | Test | `src/tests/test_shape_crash_and_approval.py`: 12 test cho workflow, single và orchestrator | `2032079` |
 | Report CP4 | `src/reports/crash.json` sinh bằng `python -m lab8.crash_test --count 20 --out reports/crash.json` | `2032079` |
 | Thông tin nhóm | Thông tin nhóm trong `TEAM.md` và các báo cáo | `069d64c` |
-| CP5 | `src/reports/benchmark.json`, `hidden_selfcheck.json`, `ablation_r4_seeds_mod5.json`; ADR, research card, báo cáo nhóm, bảng đóng góp | chưa commit (cập nhật hash sau khi nhóm chốt) |
+| CP5 | `src/reports/benchmark.json`, `hidden_selfcheck.json`, `ablation_r4_seeds_mod5.json`; ADR, research card, báo cáo nhóm, bảng đóng góp | `39a3eb3` |
 | Integration | Merge PR #1, #2, #3 | `1300029`, `842aa1d`, `37e486c` |
 
 **Test đã thêm** (`test_shape_crash_and_approval.py`, chạy trong cổng host):
@@ -39,7 +39,7 @@
 
 ## 4. Bằng chứng
 
-- Commit: `2032079` (test và crash.json), `069d64c` (thông tin nhóm).
+- Commit: `2032079` (test và crash.json), `069d64c` (thông tin nhóm), `39a3eb3` (ADR, báo cáo nhóm).
 - `python -m pytest -q tests/test_shape_crash_and_approval.py` → `12 passed`.
 - `python -m pytest -q` (cổng host) → `107 passed`; `python -m pytest -q -m student -o addopts=` → `250 passed`.
 - `python -m lab8.crash_test --count 20 --out reports/crash.json` → `crash_safety 20/20`.
