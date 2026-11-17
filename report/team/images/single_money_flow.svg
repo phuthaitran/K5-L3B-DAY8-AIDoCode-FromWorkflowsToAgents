@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1380" viewBox="0 0 900 1380" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="900" height="1380" fill="#ffffff"/>
+
+  <text x="450" y="36" text-anchor="middle" font-size="20" font-weight="700" fill="#0f172a">Luồng xử lý của Shape B — Single agent</text>
+
+  <!-- Legend -->
+  <rect x="140" y="52" width="16" height="12" rx="2" fill="#fff" stroke="#334155"/>
+  <text x="162" y="63" font-size="12">Code làm</text>
+  <rect x="240" y="52" width="16" height="12" rx="2" fill="#f5f3ff" stroke="#6d28d9"/>
+  <text x="262" y="63" font-size="12">Agent chọn tool đọc</text>
+  <rect x="400" y="52" width="16" height="12" rx="2" fill="#ecfdf5" stroke="#15803d"/>
+  <text x="422" y="63" font-size="12">Host ghi tiền</text>
+  <polygon points="530,58 540,52 550,58 540,64" fill="#fff7e6" stroke="#b45309"/>
+  <text x="556" y="63" font-size="12">Lựa chọn</text>
+  <rect x="640" y="52" width="16" height="12" rx="2" fill="#f1f5f9" stroke="#64748b"/>
+  <text x="662" y="63" font-size="12">Kết quả (status)</text>
+
+  <!-- Start -->
+  <rect x="250" y="84" width="160" height="38" rx="19" fill="#0f172a"/>
+  <text x="330" y="108" text-anchor="middle" font-weight="600" fill="#fff">Nhận claim_id</text>
+  <line x1="330" y1="122" x2="330" y2="142" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+
+  <!-- 1 get_claim_view -->
+  <rect x="170" y="144" width="320" height="44" rx="8" fill="#fff" stroke="#334155"/>
+  <text x="330" y="171" text-anchor="middle">Đọc claim (get_claim_view)</text>
+  <line x1="330" y1="188" x2="330" y2="208" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+
+  <!-- D1 claim exists -->
+  <polygon points="330,210 450,244 330,278 210,244" fill="#fff7e6" stroke="#b45309" stroke-width="1.5"/>
+  <text x="330" y="249" text-anchor="middle">Claim có tồn tại?</text>
+  <line x1="450" y1="244" x2="618" y2="244" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="470" y="237" font-size="12.5" fill="#b91c1c">Không</text>
+  <rect x="620" y="224" width="240" height="40" rx="8" fill="#f1f5f9" stroke="#64748b"/>
+  <text x="740" y="249" text-anchor="middle" font-weight="700" fill="#b91c1c">failed</text>
+  <line x1="330" y1="278" x2="330" y2="340" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="340" y="300" font-size="12.5" fill="#15803d">Có</text>
+
+  <!-- ReAct loop group -->
+  <rect x="140" y="312" width="740" height="430" rx="12" fill="#faf8ff" stroke="#6d28d9" stroke-dasharray="7 5"/>
+  <text x="156" y="333" font-size="13" font-weight="700" fill="#6d28d9">Vòng ReAct — tối đa 8 bước, mỗi bước agent gọi MockLLM 1 lần rồi chọn việc tiếp theo</text>
+
+  <!-- D2 has order_id -->
+  <polygon points="330,342 450,376 330,410 210,376" fill="#fff7e6" stroke="#b45309" stroke-width="1.5"/>
+  <text x="330" y="381" text-anchor="middle">Có order_id?</text>
+  <line x1="450" y1="376" x2="618" y2="376" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="470" y="369" font-size="12.5" fill="#b91c1c">Không</text>
+  <rect x="620" y="356" width="240" height="40" rx="8" fill="#f1f5f9" stroke="#64748b"/>
+  <text x="740" y="381" text-anchor="middle" font-weight="700" fill="#b45309">needs_info</text>
+  <line x1="330" y1="410" x2="330" y2="430" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="340" y="424" font-size="12.5" fill="#15803d">Có</text>
+
+  <!-- lookup_order -->
+  <rect x="170" y="432" width="320" height="44" rx="8" fill="#f5f3ff" stroke="#6d28d9"/>
+  <text x="330" y="459" text-anchor="middle">Tool đọc: lookup_order</text>
+  <line x1="330" y1="476" x2="330" y2="494" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+
+  <!-- D3 visible -->
+  <polygon points="330,496 450,532 330,568 210,532" fill="#fff7e6" stroke="#b45309" stroke-width="1.5"/>
+  <text x="330" y="528" text-anchor="middle">Đơn tồn tại và</text>
+  <text x="330" y="545" text-anchor="middle">đúng chủ claim?</text>
+  <line x1="450" y1="532" x2="618" y2="532" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="470" y="525" font-size="12.5" fill="#b91c1c">Không</text>
+  <rect x="620" y="512" width="240" height="40" rx="8" fill="#f1f5f9" stroke="#64748b"/>
+  <text x="740" y="537" text-anchor="middle" font-weight="700" fill="#b45309">escalated</text>
+  <line x1="330" y1="568" x2="330" y2="590" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="340" y="584" font-size="12.5" fill="#15803d">Có</text>
+
+  <!-- refund history -->
+  <rect x="170" y="592" width="320" height="44" rx="8" fill="#f5f3ff" stroke="#6d28d9"/>
+  <text x="330" y="619" text-anchor="middle">Tool đọc: lookup_refund_history</text>
+  <line x1="330" y1="636" x2="330" y2="664" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+
+  <!-- compute_compensation -->
+  <rect x="170" y="666" width="320" height="52" rx="8" fill="#f5f3ff" stroke="#6d28d9"/>
+  <text x="330" y="688" text-anchor="middle">Tool đọc: compute_compensation</text>
+  <text x="330" y="707" text-anchor="middle" font-size="12" fill="#475569">tính quote từ dòng order trong DB</text>
+
+  <!-- step cap -->
+  <rect x="620" y="434" width="240" height="40" rx="8" fill="#f1f5f9" stroke="#64748b"/>
+  <text x="740" y="452" text-anchor="middle" font-size="12.5">Quá 8 bước chưa xong</text>
+  <text x="740" y="468" text-anchor="middle" font-weight="700" fill="#b91c1c">failed (step_cap)</text>
+
+  <!-- Quote rules -->
+  <line x1="490" y1="692" x2="512" y2="692" stroke="#1d4ed8" stroke-width="1.6" marker-end="url(#a)"/>
+  <rect x="514" y="572" width="356" height="162" rx="8" fill="#eff6ff" stroke="#1d4ed8"/>
+  <text x="528" y="593" font-size="13" font-weight="700" fill="#1d4ed8">Quote tăng khi nào? (compensation.quote)</text>
+  <g font-size="12">
+    <text x="528" y="614">Bắt đầu: quote = 0</text>
+    <text x="528" y="632"><tspan font-weight="700" fill="#15803d">↑ phí ship</tspan> nếu trễ ≥ 3 ngày (delay_days trong DB)</text>
+    <text x="528" y="650"><tspan font-weight="700" fill="#15803d">↑ min(150.000, paid_vnd)</tspan> nếu hỏng đã xác minh</text>
+    <text x="528" y="668">Cả hai cùng đủ → lấy số <tspan font-weight="700">LỚN hơn</tspan>, không cộng</text>
+    <text x="528" y="686"><tspan font-weight="700" fill="#b91c1c">= 0</tspan> nếu đơn không phải delivered / delivered_late</text>
+    <text x="528" y="704"><tspan font-weight="700" fill="#b91c1c">bỏ qua</tspan> policy cũ / tương lai (không is_current)</text>
+    <text x="528" y="722"><tspan font-weight="700" fill="#b91c1c">không dùng</tspan> số ngày hay số tiền khách ghi trong ticket</text>
+  </g>
+
+  <line x1="330" y1="718" x2="330" y2="772" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="340" y="760" font-size="12.5" fill="#475569">kết thúc vòng, code lấy quote từ kết quả tool</text>
+
+  <!-- D4 quote > 0 -->
+  <polygon points="330,774 450,808 330,842 210,808" fill="#fff7e6" stroke="#b45309" stroke-width="1.5"/>
+  <text x="330" y="813" text-anchor="middle">quote &gt; 0 ?</text>
+  <line x1="450" y1="808" x2="618" y2="808" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="470" y="801" font-size="12.5" fill="#b91c1c">Không</text>
+  <rect x="620" y="788" width="240" height="40" rx="8" fill="#f1f5f9" stroke="#64748b"/>
+  <text x="740" y="813" text-anchor="middle" font-weight="700" fill="#b91c1c">denied <tspan font-weight="400" font-size="12" fill="#475569">(không gọi host)</tspan></text>
+  <line x1="330" y1="842" x2="330" y2="866" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="340" y="859" font-size="12.5" fill="#15803d">Có</text>
+
+  <!-- issue_refund -->
+  <rect x="170" y="868" width="320" height="52" rx="8" fill="#ecfdf5" stroke="#15803d" stroke-width="1.6"/>
+  <text x="330" y="890" text-anchor="middle" font-weight="600">Code gọi host: issue_refund</text>
+  <text x="330" y="909" text-anchor="middle" font-size="12" fill="#475569">truyền quote ĐẦY ĐỦ + crash_at</text>
+  <line x1="330" y1="920" x2="330" y2="944" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+
+  <!-- D5 host result -->
+  <polygon points="330,946 450,982 330,1018 210,982" fill="#fff7e6" stroke="#b45309" stroke-width="1.5"/>
+  <text x="330" y="978" text-anchor="middle">Host kiểm approval,</text>
+  <text x="330" y="995" text-anchor="middle">trần tiền, chống trùng</text>
+
+  <line x1="450" y1="982" x2="618" y2="926" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="520" y="940" font-size="12.5" fill="#15803d">Đồng ý</text>
+  <rect x="620" y="906" width="240" height="40" rx="8" fill="#ecfdf5" stroke="#15803d"/>
+  <text x="740" y="931" text-anchor="middle" font-weight="700" fill="#15803d">resolved <tspan font-weight="400" font-size="12" fill="#475569">(ghi 1 refund)</tspan></text>
+
+  <line x1="450" y1="982" x2="618" y2="982" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="550" y="975" font-size="12.5" fill="#b91c1c">Từ chối</text>
+  <rect x="620" y="962" width="240" height="40" rx="8" fill="#f1f5f9" stroke="#64748b"/>
+  <text x="740" y="987" text-anchor="middle" font-weight="700" fill="#b91c1c">denied <tspan font-weight="400" font-size="12" fill="#475569">(audit policy_denied)</tspan></text>
+
+  <line x1="450" y1="982" x2="618" y2="1038" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="440" y="1046" font-size="12.5" fill="#b91c1c">Số tiền xung đột</text>
+  <rect x="620" y="1018" width="240" height="40" rx="8" fill="#f1f5f9" stroke="#64748b"/>
+  <text x="740" y="1043" text-anchor="middle" font-weight="700" fill="#b91c1c">failed <tspan font-weight="400" font-size="12" fill="#475569">(giữ số cũ)</tspan></text>
+
+  <!-- Notes -->
+  <rect x="40" y="1084" width="820" height="76" rx="8" fill="#f8fafc" stroke="#94a3b8"/>
+  <text x="56" y="1107" font-size="12.5"><tspan font-weight="700">Ghi nhớ:</tspan> agent chỉ chọn tool đọc; số tiền do code tính từ DB (không lấy từ ticket hay lời model); chỉ host được ghi tiền.</text>
+  <text x="56" y="1127" font-size="12.5">Gặp crash giả (InjectedCrash) → ghi trace rồi để lỗi bay ra; chạy lại vẫn chỉ 1 refund nhờ host chống trùng.</text>
+  <text x="56" y="1147" font-size="12.5">Mọi kết quả đều ghi trace (chỉ tên tool, status, số tiền; không ghi ticket hay dữ liệu cá nhân).</text>
+
+  <!-- Glossary -->
+  <rect x="40" y="1176" width="820" height="186" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+  <text x="56" y="1200" font-size="14" font-weight="700" fill="#1e3a8a">Chú giải thuật ngữ</text>
+  <g font-size="12.5">
+    <text x="56" y="1224"><tspan font-weight="700">Claim</tspan> — yêu cầu hoàn tiền khách gửi: claim_id, mã đơn (order_id), người gửi (principal_id), ticket (chữ khách viết).</text>
+    <text x="56" y="1246"><tspan font-weight="700">Order</tspan> — dòng đơn hàng trong DB: trạng thái, số ngày trễ, phí ship, số tiền đã trả, hỏng đã xác minh chưa.</text>
+    <text x="56" y="1268"><tspan font-weight="700">Quote</tspan> — số tiền khách được hưởng theo policy hiện hành, do code tính từ order (không phải số cuối cùng được ghi).</text>
+    <text x="56" y="1290"><tspan font-weight="700">issue_refund</tspan> — cửa ghi tiền của host: kiểm approval, trừ phần đã hoàn của đơn, chống ghi trùng, rồi mới ghi.</text>
+    <text x="56" y="1312"><tspan font-weight="700">Approval</tspan> — phiếu duyệt số tiền tối đa cho đúng claim đó; thiếu, hết hạn, bị thu hồi hay sai claim thì không được ghi.</text>
+    <text x="56" y="1334"><tspan font-weight="700">Ledger</tspan> — bảng ghi các lần hoàn tiền thật; mỗi claim tối đa 1 dòng (khóa refund:{claim_id}).</text>
+    <text x="56" y="1352" font-size="11.5" fill="#475569"><tspan font-weight="700">Status:</tspan> resolved = đã hoàn · denied = từ chối · needs_info = cần thêm thông tin · escalated = chuyển người xử lý · failed = lỗi / xung đột</text>
+  </g>
+</svg>

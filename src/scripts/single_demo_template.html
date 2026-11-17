@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Single Agent Demo</title>
+<style>
+  :root {
+    --bg: #f3f5f9;
+    --panel: #ffffff;
+    --soft: #f6f7fb;
+    --ink: #172033;
+    --muted: #5d6880;
+    --user: #2453d6;
+    --user-ink: #ffffff;
+    --bot: #eef1f7;
+    --code: #e9eef9;   --code-ink: #2453d6;
+    --agent: #f1ebff;  --agent-ink: #6b3fd4;
+    --tool: #e6f5f2;   --tool-ink: #0f7a68;
+    --host: #fff2e2;   --host-ink: #b25b00;
+    --result: #edf1f6; --result-ink: #172033;
+    --crash: #fde9ec;  --crash-ink: #c0263d;
+    --ok: #12804a;     --ok-bg: #e3f6ea;
+    --no: #c0263d;     --no-bg: #fde9ec;
+    --mono: "Cascadia Code", Consolas, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f131b; --panel: #171c27; --soft: #1d2331; --ink: #e6eaf2; --muted: #98a2b8;
+      --user: #4a74f0; --bot: #232a3a;
+      --code: #1d2843; --code-ink: #8fb0ff;
+      --agent: #2a2244; --agent-ink: #b99cff;
+      --tool: #15322e; --tool-ink: #5fd3bd;
+      --host: #3a2a15; --host-ink: #ffb35c;
+      --result: #232a3a; --result-ink: #e6eaf2;
+      --crash: #3d1a22; --crash-ink: #ff7d91;
+      --ok: #4fd18b; --ok-bg: #173826; --no: #ff7d91; --no-bg: #3d1a22;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--ink); font: 14px/1.5 "Segoe UI", system-ui, -apple-system, sans-serif; }
+  header { padding: 22px 28px 10px; }
+  header h1 { font-size: 20px; font-weight: 700; }
+  header p { color: var(--muted); font-size: 13px; }
+  main { display: grid; grid-template-columns: minmax(320px, 420px) 1fr; gap: 18px; padding: 10px 28px 28px; height: calc(100vh - 82px); min-height: 560px; }
+  section { background: var(--panel); border-radius: 16px; box-shadow: 0 1px 2px rgba(15,23,42,.05), 0 8px 24px rgba(15,23,42,.06); display: flex; flex-direction: column; overflow: hidden; }
+  .head { padding: 16px 18px 10px; font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .head small { color: var(--muted); font-weight: 400; font-size: 12px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--ok); }
+
+  /* Chat */
+  #chat { flex: 1; overflow-y: auto; padding: 8px 18px 14px; display: flex; flex-direction: column; gap: 10px; }
+  .msg { max-width: 88%; padding: 10px 14px; border-radius: 16px; animation: pop .25s ease; }
+  .msg.user { align-self: flex-end; background: var(--user); color: var(--user-ink); border-bottom-right-radius: 4px; }
+  .msg.bot { align-self: flex-start; background: var(--bot); border-bottom-left-radius: 4px; }
+  .msg .meta { font-size: 11px; opacity: .75; margin-bottom: 3px; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px; margin-top: 6px; }
+  .st-resolved { background: var(--ok-bg); color: var(--ok); }
+  .st-denied, .st-failed { background: var(--no-bg); color: var(--no); }
+  .st-needs_info, .st-escalated { background: var(--host); color: var(--host-ink); }
+  .typing { align-self: flex-start; background: var(--bot); padding: 12px 16px; border-radius: 16px; display: flex; gap: 4px; }
+  .typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: blink 1s infinite; }
+  .typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
+  .presets { background: var(--soft); padding: 12px 14px 14px; }
+  .presets p { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .chips { display: flex; flex-direction: column; gap: 6px; max-height: 230px; overflow-y: auto; }
+  .chip { text-align: left; background: var(--panel); color: var(--ink); border: 0; border-radius: 10px; padding: 8px 11px; cursor: pointer; font: inherit; font-size: 13px; display: flex; gap: 8px; align-items: baseline; transition: background .15s, transform .15s; }
+  .chip:hover { background: var(--code); transform: translateX(2px); }
+  .chip.active { background: var(--user); color: var(--user-ink); }
+  .chip b { font-family: var(--mono); font-size: 11.5px; opacity: .8; white-space: nowrap; }
+
+  /* Steps */
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 0 18px 8px; font-size: 12px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend em { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  details.gloss { margin: 0 18px 10px; background: var(--soft); border-radius: 12px; padding: 8px 12px; font-size: 12.5px; }
+  details.gloss summary { cursor: pointer; font-weight: 700; color: var(--code-ink); }
+  details.gloss dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin-top: 8px; }
+  details.gloss dt { font-weight: 700; font-family: var(--mono); font-size: 12px; }
+  details.gloss dd { color: var(--muted); }
+  #steps { flex: 1; overflow-y: auto; padding: 4px 18px 18px; display: flex; flex-direction: column; gap: 8px; }
+  .empty { color: var(--muted); margin: auto; text-align: center; max-width: 340px; }
+  .step { display: grid; grid-template-columns: 30px 1fr; gap: 10px; padding: 10px 12px; border-radius: 12px; animation: slide .3s ease both; }
+  .num { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; font-weight: 700; font-size: 12px; color: #fff; }
+  .step .who { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .step .title { font-weight: 600; }
+  .fn { font-family: var(--mono); font-size: 12.5px; background: rgba(127,127,127,.12); padding: 2px 7px; border-radius: 6px; display: inline-block; margin: 3px 0 2px; word-break: break-all; }
+  .rows { display: grid; grid-template-columns: max-content 1fr auto; gap: 3px 12px; margin-top: 6px; font-size: 12.5px; align-items: baseline; }
+  .rows .k { color: var(--muted); }
+  .rows .v { font-family: var(--mono); font-size: 12px; }
+  .ok, .no { font-size: 11px; font-weight: 700; padding: 0 7px; border-radius: 999px; }
+  .ok { background: var(--ok-bg); color: var(--ok); } .no { background: var(--no-bg); color: var(--no); }
+  .k-code { background: var(--code); } .k-code .num { background: var(--code-ink); } .k-code .who { color: var(--code-ink); }
+  .k-agent { background: var(--agent); } .k-agent .num { background: var(--agent-ink); } .k-agent .who { color: var(--agent-ink); }
+  .k-tool { background: var(--tool); } .k-tool .num { background: var(--tool-ink); } .k-tool .who { color: var(--tool-ink); }
+  .k-host { background: var(--host); } .k-host .num { background: var(--host-ink); } .k-host .who { color: var(--host-ink); }
+  .k-result { background: var(--result); } .k-result .num { background: var(--result-ink); color: var(--panel); } .k-result .who { color: var(--result-ink); }
+  .k-crash { background: var(--crash); } .k-crash .num { background: var(--crash-ink); } .k-crash .who { color: var(--crash-ink); }
+  .msg.host { align-self: center; max-width: 92%; background: var(--host); color: var(--host-ink); border-radius: 12px; font-size: 13px; }
+  .msg.host .meta { opacity: .85; font-weight: 700; }
+  .st-wait { background: var(--host); color: var(--host-ink); }
+  .hostbtn { margin-top: 8px; border: 0; border-radius: 10px; padding: 7px 14px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; background: var(--host-ink); color: #fff; transition: transform .15s, opacity .15s; }
+  .hostbtn:hover:not(:disabled) { transform: translateY(-1px); }
+  .hostbtn:disabled { opacity: .45; cursor: default; }
+  .k-wait { background: var(--host); animation: pulse 1.6s ease-in-out infinite; }
+  .k-wait .num { background: var(--host-ink); } .k-wait .who { color: var(--host-ink); }
+  @keyframes pulse { 50% { opacity: .78; } }
+  .divider { font-size: 12px; font-weight: 700; color: var(--muted); padding: 6px 4px 0; text-transform: uppercase; letter-spacing: .05em; }
+  @keyframes pop { from { opacity: 0; transform: translateY(6px); } }
+  @keyframes slide { from { opacity: 0; transform: translateX(10px); } }
+  @keyframes blink { 50% { opacity: .25; } }
+  @media (max-width: 860px) {
+    header { padding: 16px 16px 6px; }
+    main { grid-template-columns: 1fr; height: auto; padding: 8px 16px 16px; }
+    #chat { min-height: 260px; max-height: 50vh; }
+    #steps { max-height: none; }
+    .rows { grid-template-columns: 1fr auto; } .rows .k { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Shape B — Single agent: hỏi gì, agent làm gì</h1>
+  <p id="sub"></p>
+</header>
+<main>
+  <section>
+    <div class="head"><span class="dot"></span>Chat với LogiX <small>chọn một câu hỏi có sẵn</small></div>
+    <div id="chat"></div>
+    <div class="presets">
+      <p>Câu hỏi mẫu (14 claim public, chạy thật bằng <code>single.run_claim</code>):</p>
+      <div class="chips" id="chips"></div>
+    </div>
+  </section>
+  <section>
+    <div class="head">Agent đã làm gì <small id="stepcount"></small></div>
+    <div class="legend">
+      <span><em style="background:var(--code-ink)"></em>Code</span>
+      <span><em style="background:var(--agent-ink)"></em>Agent (MockLLM chọn bước)</span>
+      <span><em style="background:var(--tool-ink)"></em>Tool đọc</span>
+      <span><em style="background:var(--host-ink)"></em>Host ghi tiền</span>
+      <span><em style="background:var(--result-ink)"></em>Kết quả</span>
+    </div>
+    <details class="gloss">
+      <summary>Chú giải thuật ngữ</summary>
+      <dl>
+        <dt>claim</dt><dd>Yêu cầu hoàn tiền của khách: claim_id, mã đơn, người gửi, ticket (chữ khách viết).</dd>
+        <dt>order</dt><dd>Dòng đơn hàng trong DB: trạng thái, số ngày trễ, phí ship, số đã trả, hỏng đã xác minh chưa.</dd>
+        <dt>quote</dt><dd>Số tiền được hưởng theo policy hiện hành, do code tính từ order. Chưa phải số được ghi.</dd>
+        <dt>issue_refund</dt><dd>Cửa ghi tiền của host: kiểm approval, trừ phần đã hoàn của đơn, chống ghi trùng, rồi mới ghi.</dd>
+        <dt>approval</dt><dd>Phiếu duyệt số tiền tối đa cho đúng claim đó. Thiếu, hết hạn, bị thu hồi, sai claim → không ghi.</dd>
+        <dt>ledger</dt><dd>Bảng ghi các lần hoàn thật. Mỗi claim tối đa 1 dòng (khóa refund:{claim_id}).</dd>
+        <dt>status</dt><dd>resolved = đã hoàn · denied = từ chối · needs_info = cần thêm thông tin · escalated = chuyển người · failed = lỗi.</dd>
+      </dl>
+    </details>
+    <div id="steps"><p class="empty">Chọn một câu hỏi ở khung chat để xem từng bước agent, tool và host đã chạy.</p></div>
+  </section>
+</main>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+  const DATA = JSON.parse(document.getElementById("data").textContent);
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const WHO = { code: "Code", agent: "Agent", tool: "Tool đọc", host: "Host", result: "Kết quả", crash: "Crash giả" };
+
+  $("sub").textContent = `Dữ liệu sinh từ lần chạy thật, seed ${DATA.seed}, ngày tham chiếu ${DATA.as_of}. Model chỉ chọn tool đọc; code tính quote; host quyết số tiền được ghi.`;
+
+  const chips = $("chips");
+  DATA.cases.forEach((c, i) => {
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.innerHTML = `<b>${esc(c.matrix)}</b><span>${esc(c.ticket)}</span>`;
+    b.onclick = () => ask(i, b);
+    chips.appendChild(b);
+  });
+
+  // Mở thẳng một case bằng URL, ví dụ single_agent_chat.html#T14
+  window.addEventListener("load", () => {
+    const want = decodeURIComponent(location.hash.slice(1));
+    const idx = DATA.cases.findIndex((c) => c.matrix === want || c.id === want);
+    if (idx >= 0) chips.children[idx].click();
+  });
+
+  // Trạng thái: busy = đang "gõ"; waiting = đã có tin chờ HOST, chưa bấm duyệt.
+  let busy = false;
+  let current = null; // { c, post, n, done }
+
+  function ask(i, btn) {
+    if (busy) return;
+    busy = true;
+    document.querySelectorAll(".chip").forEach((x) => x.classList.remove("active"));
+    btn.classList.add("active");
+    const c = DATA.cases[i];
+    // Chia các bước: phần trước HOST hiện ngay, phần từ HOST trở đi chờ bấm duyệt.
+    let gate = c.steps.findIndex((s) => s.kind === "host");
+    if (gate < 0) gate = c.steps.length - 1; // không gọi host: chỉ giữ lại bước "Kết quả"
+    const pre = c.steps.slice(0, gate);
+    const post = c.steps.slice(gate);
+    if (!c.host_called) {
+      post.unshift({ kind: "host", title: "HOST không có gì để ghi", fn: "durability.issue_refund(...)", rows: c.host_skip });
+    }
+    current = { c, post, n: 0, done: false };
+
+    const chat = $("chat");
+    chat.insertAdjacentHTML("beforeend", `<div class="msg user"><div class="meta">${esc(c.id)} · ${esc(c.matrix)}</div>${esc(c.ticket)}</div>`);
+    const typing = document.createElement("div");
+    typing.className = "typing";
+    typing.innerHTML = "<i></i><i></i><i></i>";
+    chat.appendChild(typing);
+    chat.scrollTop = chat.scrollHeight;
+
+    $("steps").innerHTML = "";
+    current.n = appendSteps(pre, 0);
+    $("steps").insertAdjacentHTML("beforeend", `
+      <div class="step k-wait" id="gate">
+        <div class="num">⏸</div>
+        <div>
+          <div class="who">Chờ HOST</div>
+          <div class="title">Agent đã xong phần đọc và tính quote. Bước ghi tiền thuộc về HOST.</div>
+          <button class="hostbtn" onclick="approve()">HOST duyệt · chạy issue_refund ▶</button>
+        </div>
+      </div>`);
+    $("stepcount").textContent = `${c.id} · đang chờ HOST`;
+    $("steps").scrollTop = 0;
+
+    setTimeout(() => {
+      typing.remove();
+      chat.insertAdjacentHTML("beforeend", `
+        <div class="msg bot pending" id="pendingMsg">
+          <div class="meta">LogiX · single agent</div>${esc(c.pending)}
+          <br><span class="pill st-wait">chờ HOST duyệt</span>
+          <br><button class="hostbtn" onclick="approve()">HOST duyệt ▶</button>
+        </div>`);
+      chat.scrollTop = chat.scrollHeight;
+      busy = false;
+    }, Math.min(1400, 250 + pre.length * 80));
+  }
+
+  function approve() {
+    if (!current || current.done || busy) return;
+    current.done = true;
+    const { c, post } = current;
+    document.querySelectorAll(".hostbtn").forEach((b) => { b.disabled = true; b.textContent = "Đã duyệt"; });
+    const gate = $("gate");
+    if (gate) gate.remove();
+    const total = appendSteps(post, current.n);
+    $("stepcount").textContent = `${c.id} · ${total} bước`;
+    const box = $("steps");
+    setTimeout(() => { box.scrollTop = box.scrollHeight; }, 120);
+
+    const chat = $("chat");
+    chat.insertAdjacentHTML("beforeend", `
+      <div class="msg host"><div class="meta">HOST · durability.issue_refund</div>${esc(hostLine(c))}</div>`);
+    setTimeout(() => {
+      chat.insertAdjacentHTML("beforeend", `<div class="msg bot"><div class="meta">LogiX · sau khi HOST xử lý</div>${esc(c.reply)}<br><span class="pill st-${esc(c.status)}">${esc(c.status)}</span></div>`);
+      chat.scrollTop = chat.scrollHeight;
+    }, 500);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function hostLine(c) {
+    if (!c.host_called) return "Không có lệnh ghi tiền nào được gửi tới HOST. Ledger giữ nguyên.";
+    const host = c.steps.filter((s) => s.kind === "host").pop();
+    const ret = (host.rows || []).find((r) => r.label === "host trả về");
+    return ret ? `Kết quả: ${ret.expr}` : "Đã xử lý.";
+  }
+
+  function appendSteps(list, start) {
+    const box = $("steps");
+    let n = start;
+    list.forEach((s, idx) => {
+      if (s.kind === "divider") {
+        box.insertAdjacentHTML("beforeend", `<div class="divider">${esc(s.title)}</div>`);
+        return;
+      }
+      n += 1;
+      const rows = (s.rows || []).map((r) => {
+        const mark = r.ok === true ? '<span class="ok">✓</span>' : r.ok === false ? '<span class="no">✗</span>' : "<span></span>";
+        return `<span class="k">${esc(r.label)}</span><span class="v">${esc(r.expr)}</span>${mark}`;
+      }).join("");
+      box.insertAdjacentHTML("beforeend", `
+        <div class="step k-${esc(s.kind)}" style="animation-delay:${idx * 70}ms">
+          <div class="num">${n}</div>
+          <div>
+            <div class="who">${esc(WHO[s.kind] || s.kind)}</div>
+            <div class="title">${esc(s.title)}</div>
+            ${s.fn ? `<code class="fn">${esc(s.fn)}</code>` : ""}
+            ${rows ? `<div class="rows">${rows}</div>` : ""}
+          </div>
+        </div>`);
+    });
+    return n;
+  }
+</script>
+</body>
+</html>
