@@ -17,11 +17,17 @@
 
 ## 3. Đóng góp cụ thể
 
-| Hạng mục | Nội dung | Commit |
-| --- | --- | --- |
-| Code | `single.py`: vòng ReAct ≤ 8 bước, gọi host với quote đầy đủ + `crash_at` | <!-- TODO --> |
-| Test | `test_single_shape.py`: 3 test | <!-- TODO --> |
-| Sơ đồ / demo | `images/single_money_flow.svg`, `demo/single_agent_chat.html`, `src/scripts/build_single_demo.py` | <!-- TODO --> |
+**Commit chính:** [`b1ee347`](https://github.com/phuthaitran/K5-L3B-DAY8-AIDoCode-FromWorkflowsToAgents/commit/b1ee34727fb5891df03fda2eff18226bf6bffc71) — `feat: add single agent demo generation script and HTML template` (nhánh `CaoTrungHieu`, merge vào `main` qua PR #2). Gồm `single.py`, `test_single_shape.py`, sơ đồ, demo và script sinh demo.
+
+**Test đã thêm** (`src/tests/test_single_shape.py`, 3 test):
+
+| Test | Kiểm tra | Số ca | Kết quả |
+| --- | --- | ---: | ---: |
+| `test_single_trace_has_no_ticket_secret_or_pii` | Chạy cả 14 claim public: trace đúng `run_id`, không chứa ticket, `CANARY_SECRET`, SĐT, địa chỉ, ghi chú nội bộ, tên hàng | 14 claim | 14/14 pass |
+| `test_single_ignores_delay_written_in_ticket` | C-002 (ticket ghi trễ 5 ngày, DB chỉ 2 ngày) ở 5 seed → `denied`, quote 0, không có refund, số lần gọi model ≤ 8 | 5 seed | 5/5 pass |
+| `test_single_fails_closed_when_agent_skips_quote` | Giả lập agent kết thúc mà không gọi `compute_compensation` → `denied`, quote 0, ledger không có refund | 1 ca | 1/1 pass |
+
+Chạy `python -m pytest -v tests/test_single_shape.py` (trong `src/`) → **3 passed in 0.58s**.
 
 Quyết định kỹ thuật:
 
